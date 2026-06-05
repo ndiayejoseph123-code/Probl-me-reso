@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Calculateur RDC — Sénégal</title>
+<style>
+:root {
+  --bg: #141418;
+  --bg2: #1c1c22;
+  --surface: #22222a;
+  --surface2: #2a2a34;
+  --border: #38384a;
+  --border2: #44445a;
+  --orange: #f97316;
+  --orange2: #fb923c;
+  --orange-dim: rgba(249,115,22,0.12);
+  --green: #4ade80;
+  --blue: #38bdf8;
+  --text: #e4e4f0;
+  --text2: #888898;
+  --text3: #555568;
+  --shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Trebuchet MS','Lucida Grande',Tahoma,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  min-height:100vh;
+}
+
+/* ── HEADER ─────────────────────────── */
+.app-head{
+  background:linear-gradient(160deg,#1a1a20 0%,#2a1f10 100%);
+  border-bottom:2px solid var(--orange);
+  padding:14px 16px 12px;
+}
+.app-head-inner{display:flex;align-items:center;gap:12px}
+.app-icon{
+  width:40px;height:40px;
+  background:var(--orange);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.app-title{font-size:1.15rem;font-weight:700;color:var(--orange);letter-spacing:.3px;font-family:Georgia,serif}
+.app-sub{font-size:.7rem;color:var(--text2);margin-top:1px}
+
+/* ── TABS ─────────────────────────── */
+.sticky-wrap{position:sticky;top:0;z-index:90}
+.tabs{
+  display:flex;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex:0 0 auto;
+  padding:11px 15px;
+  background:none;border:none;
+  color:var(--text2);
+  font-size:.78rem;
+  font-family:inherit;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  white-space:nowrap;
+  transition:color .2s,border-color .2s;
+}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* ── SECTIONS ─────────────────────── */
+.section{display:none;padding:14px 14px 24px}
+.section.active{display:block}
+
+/* ── CARDS ─────────────────────────── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:12px;
+}
+.card-title{
+  font-size:.67rem;
+  text-transform:uppercase;
+  letter-spacing:1.8px;
+  color:var(--orange2);
+  margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── FORM ─────────────────────────── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid1{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+label{
+  display:block;
+  font-size:.7rem;
+  color:var(--text2);
+  margin-bottom:4px;
+  line-height:1.3;
+}
+input,select{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:7px;
+  color:var(--text);
+  padding:10px 10px;
+  font-size:.9rem;
+  font-family:inherit;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;
+}
+input:focus,select:focus{
+  border-color:var(--orange);
+  box-shadow:0 0 0 2px rgba(249,115,22,.15);
+}
+input[readonly]{
+  color:var(--text2);
+  cursor:default;
+  border-style:dashed;
+  font-size:.8rem;
+}
+
+/* badge "fixe" */
+.badge{
+  display:inline-block;
+  background:rgba(56,189,248,.12);
+  color:var(--blue);
+  font-size:.6rem;
+  padding:1px 6px;
+  border-radius:20px;
+  letter-spacing:.5px;
+  vertical-align:middle;
+}
+
+/* ── RÉSULTATS ─────────────────────── */
+.results{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:10px;
+}
+.rrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  font-size:.82rem;
+  gap:8px;
+}
+.rrow:last-child{border-bottom:none}
+.rlabel{color:var(--text2);flex:1}
+.rval{font-weight:600;color:var(--green);text-align:right;white-space:nowrap}
+.rval.big{color:var(--orange);font-size:1.05rem;font-family:'Courier New',monospace;font-weight:700}
+.rval.neutral{color:var(--text)}
+
+/* ── NOTES ─────────────────────────── */
+.note{
+  font-size:.7rem;
+  color:var(--text2);
+  background:rgba(56,189,248,.06);
+  border-left:2px solid var(--blue);
+  padding:8px 10px;
+  border-radius:0 5px 5px 0;
+  margin-top:10px;
+  line-height:1.5;
+}
+.note b{color:var(--blue)}
+
+/* ── RÉCAP ─────────────────────────── */
+.recap-block{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:12px;
+  overflow:hidden;
+}
+.recap-head{
+  background:var(--orange-dim);
+  border-bottom:1px solid var(--border);
+  padding:10px 14px;
+  font-size:.68rem;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:var(--orange2);
+  display:flex;align-items:center;gap:8px;
+}
+.recap-body{padding:4px 0}
+.rcrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 14px;
+  border-bottom:1px solid var(--border);
+  font-size:.82rem;
+}
+.rcrow:last-child{border-bottom:none}
+.rckey{color:var(--text2)}
+.rcval{font-weight:600;color:var(--text);white-space:nowrap}
+.rcval.accent{color:var(--orange);font-size:1.4rem;font-family:'Courier New',monospace;font-weight:700}
+
+/* section d'avertissement */
+.warn-box{
+  background:rgba(249,115,22,.07);
+  border:1px solid rgba(249,115,22,.25);
+  border-radius:8px;
+  padding:12px 14px;
+  font-size:.75rem;
+  color:var(--text2);
+  line-height:1.6;
+  margin-bottom:16px;
+}
+
+/* sep ligne */
+.sep{height:1px;background:var(--border);margin:8px 0}
+
+/* ── BOUTON CALCULER ─────────────────── */
+.btn-calc{
+  display:block;width:100%;
+  background:var(--orange);
+  color:#fff;
+  border:none;border-radius:9px;
+  padding:14px;
+  font-size:1rem;font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  letter-spacing:.5px;
+  margin-top:4px;
+  transition:background .18s,transform .12s,box-shadow .18s;
+  box-shadow:0 4px 16px rgba(249,115,22,.35);
+}
+.btn-calc:active{transform:scale(.97);background:var(--orange2)}
+.btn-calc:hover{background:#ea6a0a;box-shadow:0 6px 22px rgba(249,115,22,.45)}
+.btn-calc span{margin-right:8px;font-size:1.1rem}
+
+/* état "en attente" des résultats */
+.res-pending{
+  color:var(--text3);
+  font-size:.82rem;
+  text-align:center;
+  padding:18px 12px;
+  font-style:italic;
+}
+
+@media(max-width:340px){
+  .grid3{grid-template-columns:1fr 1fr}
+  .app-title{font-size:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ EN-TÊTE ═══════════════════════════════════════════ -->
+<header class="app-head">
+  <div class="app-head-inner">
+    <div class="app-icon">🏗️</div>
+    <div>
+      <div class="app-title">Calculateur RDC — Sénégal</div>
+      <div class="app-sub">Construction standard · Normes CEBTP · Valeurs fixes intégrées</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ NAVIGATION ═══════════════════════════════════════ -->
+<div class="sticky-wrap">
+  <nav class="tabs">
+    <button class="tab-btn active"   onclick="goTab('maconnerie',this)">🧱 Maçonnerie</button>
+    <button class="tab-btn"          onclick="goTab('hourdis',this)">🏠 Hourdis</button>
+    <button class="tab-btn"          onclick="goTab('poteaux',this)">🔩 Poteaux</button>
+    <button class="tab-btn"          onclick="goTab('chainages',this)">🔗 Chaînages</button>
+    <button class="tab-btn"          onclick="goTab('linteaux',this)">🚪 Linteaux</button>
+    <button class="tab-btn"          onclick="goTab('recap',this)">📊 Récap</button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 1 — MAÇONNERIE                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-maconnerie" class="section active">
+
+  <div class="card">
+    <div class="card-title">Type de brique / parpaing</div>
+    <div class="grid1">
+      <div>
+        <label>Choisir le type</label>
+        <select id="m_type" >
+          <option value="creuse20">Parpaing creux 20×20×40 cm</option>
+          <option value="creuse15">Parpaing creux 15×20×40 cm</option>
+          <option value="creuse10">Parpaing creux 10×20×40 cm</option>
+          <option value="pleine">Parpaing plein ×20×40 cm</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Surfaces et ouvertures</div>
+    <div class="grid2">
+      <div>
+        <label>Surface brute de mur (m²)</label>
+        <input type="number" id="m_surface" value="80" min="0" step="0.5" >
+      </div>
+      <div>
+        <label>Surface ouvertures à déduire (m²)</label>
+        <input type="number" id="m_ouvertures" value="12" min="0" step="0.5" >
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Pertes / chutes (%)</label>
+        <input type="number" id="m_perte" value="5" min="0" max="20" >
+      </div>
+      <div>
+        <label>Densité <span class="badge">FIXE</span></label>
+        <input type="text" id="m_densite" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcMaconnerie()"><span>🧮</span> Calculer la maçonnerie</button>
+
+  <div class="card">
+    <div class="card-title">Résultats — Maçonnerie</div>
+    <div class="results" id="res_maconnerie"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+    <div class="note">
+      <b>Valeurs fixes intégrées :</b><br>
+      Parpaing creux 20/15/10×20×40 = <b>12,5 blocs/m²</b> (face 20×40 cm identique).<br>
+      Parpaing plein ×20×40 = <b>12,5 unités/m²</b>.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mortier de pose</div>
+    <div class="results" id="res_mortier"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+    <div class="note">
+      Dosage indicatif : <b>1 sac ciment (50 kg) pour ~5,5 m²</b> de parpaing.<br>
+      <b>3 brouettes de sable</b> par sac de ciment.
+    </div>
+  </div>
+
+</div><!-- /maconnerie -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 2 — HOURDIS                                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-hourdis" class="section">
+
+  <div class="card">
+    <div class="card-title">Dalle en corps creux — Hourdis 12×20×50</div>
+    <div class="grid2">
+      <div>
+        <label>Portée (longueur des poutrelles, m)</label>
+        <input type="number" id="h_portee" value="4.0" min="1" step="0.1" >
+      </div>
+      <div>
+        <label>Largeur de dalle (m)</label>
+        <input type="number" id="h_largeur" value="5.0" min="1" step="0.1" >
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Appui poutrelle de chaque côté (cm)</label>
+        <input type="number" id="h_appui" value="10" min="5" >
+      </div>
+      <div>
+        <label>Densité hourdis <span class="badge">FIXE</span></label>
+        <input type="text" value="10 unités/m²" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Espacement poutrelles (axe/axe) <span class="badge">FIXE</span></label>
+        <input type="text" value="50 cm" readonly>
+      </div>
+      <div>
+        <label>Format hourdis <span class="badge">FIXE</span></label>
+        <input type="text" value="12×20×50 cm" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcHourdis()"><span>🧮</span> Calculer le hourdis</button>
+
+  <div class="card">
+    <div class="card-title">Résultats — Hourdis</div>
+    <div class="results" id="res_hourdis"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+    <div class="note">
+      <b>Calcul :</b> Hourdis = surface × 10 · Poutrelles = (largeur ÷ 0,50) + 1 · Long. poutrelle = portée + 2×appui.
+    </div>
+  </div>
+
+</div><!-- /hourdis -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 3 — POTEAUX                                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-poteaux" class="section">
+
+  <div class="card">
+    <div class="card-title">Paramètres poteaux</div>
+    <div class="grid2">
+      <div>
+        <label>Nombre de poteaux</label>
+        <input type="number" id="p_nb" value="8" min="1" >
+      </div>
+      <div>
+        <label>Hauteur libre du poteau (m)</label>
+        <input type="number" id="p_hauteur" value="3.00" min="0.5" step="0.05" >
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Valeurs standards — Poteaux <span class="badge">TOUTES FIXES</span></div>
+    <div class="grid2">
+      <div>
+        <label>Section poteau</label>
+        <input type="text" value="20×20 cm" readonly>
+      </div>
+      <div>
+        <label>Acier longitudinal</label>
+        <input type="text" value="4 barres HA 10" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Étriers</label>
+        <input type="text" value="HA 6" readonly>
+      </div>
+      <div>
+        <label>Espacement étriers</label>
+        <input type="text" value="15 cm" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Ancrage haut (recouvrement)</label>
+        <input type="text" value="40 cm" readonly>
+      </div>
+      <div>
+        <label>Ancrage bas (fondation)</label>
+        <input type="text" value="40 cm" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Long. étrier HA6 / pièce (périmètre + crochets)</label>
+        <input type="text" value="≈ 1,00 m" readonly>
+      </div>
+      <div>
+        <label>Longueur barre commerciale</label>
+        <input type="text" value="12 m" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcPoteaux()"><span>🧮</span> Calculer les poteaux</button>
+
+  <div class="card">
+    <div class="card-title">Résultats — Poteaux</div>
+    <div class="results" id="res_poteaux"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+  </div>
+
+</div><!-- /poteaux -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 4 — CHAÎNAGES                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-chainages" class="section">
+
+  <div class="card">
+    <div class="card-title">Paramètres chaînages horizontaux</div>
+    <div class="grid2">
+      <div>
+        <label>Longueur totale par niveau (m)</label>
+        <input type="number" id="c_longueur" value="40" min="1" step="0.5" >
+      </div>
+      <div>
+        <label>Nombre de niveaux / rangées</label>
+        <input type="number" id="c_niveaux" value="2" min="1" >
+      </div>
+    </div>
+    <div class="note" style="margin:0 0 4px">
+      Ex. : chaînage bas (soubassement) + chaînage haut (sablière) = 2 niveaux.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Valeurs standards — Chaînages <span class="badge">TOUTES FIXES</span></div>
+    <div class="grid2">
+      <div>
+        <label>Acier longitudinal</label>
+        <input type="text" value="4 barres HA 10" readonly>
+      </div>
+      <div>
+        <label>Recouvrement jonction</label>
+        <input type="text" value="40 cm" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Étriers</label>
+        <input type="text" value="HA 6" readonly>
+      </div>
+      <div>
+        <label>Espacement étriers</label>
+        <input type="text" value="15 cm" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcChainages()"><span>🧮</span> Calculer les chaînages</button>
+
+  <div class="card">
+    <div class="card-title">Résultats — Chaînages</div>
+    <div class="results" id="res_chainages"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+    <div class="note">
+      <b>Recouvrements :</b> calculés à chaque jonction de barre (tous les 12 m) : + 40 cm par jonction.
+    </div>
+  </div>
+
+</div><!-- /chainages -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 5 — LINTEAUX                                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-linteaux" class="section">
+
+  <div class="card">
+    <div class="card-title">Ouvertures (portes et fenêtres)</div>
+    <div class="grid2">
+      <div>
+        <label>Nombre de portes</label>
+        <input type="number" id="l_nb_p" value="3" min="0" >
+      </div>
+      <div>
+        <label>Largeur moy. des portes (m)</label>
+        <input type="number" id="l_lp" value="0.90" min="0.4" step="0.05" >
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Nombre de fenêtres</label>
+        <input type="number" id="l_nb_f" value="4" min="0" >
+      </div>
+      <div>
+        <label>Largeur moy. des fenêtres (m)</label>
+        <input type="number" id="l_lf" value="1.20" min="0.4" step="0.05" >
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Valeurs standards — Linteaux <span class="badge">TOUTES FIXES</span></div>
+    <div class="grid2">
+      <div>
+        <label>Acier longitudinal</label>
+        <input type="text" value="2 barres HA 8" readonly>
+      </div>
+      <div>
+        <label>Ancrage de chaque côté</label>
+        <input type="text" value="40 cm" readonly>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>Étriers</label>
+        <input type="text" value="HA 6" readonly>
+      </div>
+      <div>
+        <label>Espacement étriers</label>
+        <input type="text" value="15 cm" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcLinteaux()"><span>🧮</span> Calculer les linteaux</button>
+
+  <div class="card">
+    <div class="card-title">Résultats — Linteaux</div>
+    <div class="results" id="res_linteaux"><div class="res-pending">Remplissez les champs et appuyez sur Calculer</div></div>
+    <div class="note">
+      <b>Long. linteau</b> = largeur ouverture + 2 × 40 cm d'ancrage = ouverture + 0,80 m.
+    </div>
+  </div>
+
+</div><!-- /linteaux -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ONGLET 6 — RÉCAPITULATIF                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-recap" class="section">
+
+  <button class="btn-calc" onclick="buildRecap()" style="margin-bottom:14px"><span>📊</span> Générer le récapitulatif complet</button>
+
+  <div class="warn-box">
+    ⚠️ Ces quantités sont des estimations indicatives selon les standards sénégalais. Ajouter <b>5 à 10 % de marge</b> pour les pertes et chutes. Toujours valider avec un technicien ou un conducteur de travaux.
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">🧱 Maçonnerie</div>
+    <div class="recap-body" id="recap_mac"></div>
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">🏠 Hourdis</div>
+    <div class="recap-body" id="recap_hd"></div>
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">🔩 Barres HA 10 — Poteaux + Chaînages</div>
+    <div class="recap-body" id="recap_ha10"></div>
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">🔩 Barres HA 8 — Linteaux</div>
+    <div class="recap-body" id="recap_ha8"></div>
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">🔩 Barres HA 6 — Étriers (tout)</div>
+    <div class="recap-body" id="recap_ha6"></div>
+  </div>
+
+  <div class="recap-block">
+    <div class="recap-head">📦 Total barres à acheter (barres de 12 m)</div>
+    <div class="recap-body" id="recap_total"></div>
+  </div>
+
+</div><!-- /recap -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════
+// CONSTANTES STANDARDS — NE PAS MODIFIER
+// ═══════════════════════════════════════
+const STD = {
+  DENSITE_BRIQUE     : 12.5,   // blocs/m² (face 20×40 cm, toutes épaisseurs)
+  DENSITE_HOURDIS    : 10,     // unités/m² (12×20×50 cm)
+  ETRIER_ESP         : 0.15,   // m (15 cm axe/axe)
+  ETRIER_LONG_HA6    : 1.00,   // m/étrier (section 20×20, crochets inclus)
+  ANCRAGE            : 0.40,   // m (recouvrement et ancrage)
+  BARRE_LONG         : 12,     // m (longueur commerciale)
+  BARRES_POTEAU      : 4,      // HA10 longitudinales par poteau
+  BARRES_CHAINGAGE   : 4,      // HA10 longitudinales par chaînage
+  BARRES_LINTEAU     : 2,      // HA8 longitudinales par linteau
+  CIMENT_PAR_M2      : 1/5.5,  // sacs de 50 kg par m² de maçonnerie
+  SABLE_PAR_SAC      : 3,      // brouettes de sable par sac de ciment
+  POUTRELLE_ESP      : 0.50,   // m (espacement poutrelles axe/axe)
+};
+
+const LABELS = {
+  creuse20 : 'Parpaing creux 20×20×40 cm',
+  creuse15 : 'Parpaing creux 15×20×40 cm',
+  creuse10 : 'Parpaing creux 10×20×40 cm',
+  pleine   : 'Parpaing plein ×20×40 cm',
+};
+
+// stockage des résultats pour le récap
+let R = { mac:{}, hd:{}, pot:{}, ch:{}, lin:{} };
+
+// ── utilitaires ────────────────────────
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value) || 0;
+const ceil = Math.ceil.bind(Math);
+const floor = Math.floor.bind(Math);
+function f(n, d=0){ return Number(n.toFixed(d)).toLocaleString('fr-FR'); }
+
+// ── onglets ────────────────────────────
+function goTab(name, btn){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='recap') buildRecap();
+}
+
+// ── template résultat ──────────────────
+function rRow(label, val, big=false){
+  return `<div class="rrow">
+    <span class="rlabel">${label}</span>
+    <span class="rval${big?' big':''}">${val}</span>
+  </div>`;
+}
+function rcRow(label, val, accent=false){
+  return `<div class="rcrow">
+    <span class="rckey">${label}</span>
+    <span class="rcval${accent?' accent':''}">${val}</span>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// 1. MAÇONNERIE
+// ══════════════════════════════════════════════════════
+function calcMaconnerie(){
+  const type  = $('m_type').value;
+  const den   = STD.DENSITE_BRIQUE;
+  $('m_densite').value = den + ' blocs/m²';
+
+  const sbrut = num('m_surface');
+  const souv  = num('m_ouvertures');
+  const perte = num('m_perte') / 100;
+  const snet  = Math.max(0, sbrut - souv);
+  const nbBri = ceil(snet * den * (1 + perte));
+
+  const sacsCim = ceil(snet * STD.CIMENT_PAR_M2);
+  const brouSab = sacsCim * STD.SABLE_PAR_SAC;
+
+  R.mac = { type, snet, nbBri, sacsCim, brouSab };
+
+  $('res_maconnerie').innerHTML =
+    rRow('Surface brute de mur', f(sbrut,1)+' m²') +
+    rRow('− Ouvertures déduites', '− '+f(souv,1)+' m²') +
+    rRow('= Surface nette à maçonner', f(snet,1)+' m²') +
+    rRow('Densité (valeur fixe)', den+' blocs/m²') +
+    rRow('Pertes appliquées', '+'+num('m_perte')+' %') +
+    rRow('🧱 Briques / parpaings à acheter', f(nbBri)+' blocs', true);
+
+  $('res_mortier').innerHTML =
+    rRow('🏷️ Sacs de ciment 50 kg', sacsCim+' sacs', true) +
+    rRow('🪣 Brouettes de sable', brouSab+' brouettes', true);
+}
+
+// ══════════════════════════════════════════════════════
+// 2. HOURDIS
+// ══════════════════════════════════════════════════════
+function calcHourdis(){
+  const portee  = num('h_portee');
+  const larg    = num('h_largeur');
+  const appui   = num('h_appui') / 100;
+  const surface = portee * larg;
+
+  const nbHour  = ceil(surface * STD.DENSITE_HOURDIS);
+  const longPou = portee + 2 * appui;
+  const nbPou   = ceil(larg / STD.POUTRELLE_ESP) + 1;
+
+  R.hd = { surface, nbHour, nbPou, longPou };
+
+  $('res_hourdis').innerHTML =
+    rRow('Surface de dalle', f(surface,2)+' m²') +
+    rRow('🧱 Hourdis 12×20×50 à acheter', f(nbHour)+' unités', true) +
+    rRow('Longueur d\'une poutrelle', f(longPou,2)+' m') +
+    rRow('🏗️ Nombre de poutrelles', nbPou+' pcs', true) +
+    rRow('Espacement poutrelles', '50 cm (valeur fixe)');
+}
+
+// ══════════════════════════════════════════════════════
+// 3. POTEAUX
+// ══════════════════════════════════════════════════════
+function calcPoteaux(){
+  const nb  = num('p_nb');
+  const hau = num('p_hauteur');
+
+  // HA10 longitudinal
+  const longBarre10 = hau + STD.ANCRAGE + STD.ANCRAGE; // haut + bas
+  const totHA10_m   = nb * STD.BARRES_POTEAU * longBarre10;
+  const barHA10     = ceil(totHA10_m / STD.BARRE_LONG);
+
+  // HA6 étriers
+  const nbEtPot  = ceil(hau / STD.ETRIER_ESP) + 1;
+  const totEt    = nb * nbEtPot;
+  const totHA6_m = totEt * STD.ETRIER_LONG_HA6;
+  const barHA6   = ceil(totHA6_m / STD.BARRE_LONG);
+
+  R.pot = { totHA10_m, barHA10, totEt, totHA6_m, barHA6 };
+
+  $('res_poteaux').innerHTML =
+    rRow('Nb poteaux', nb) +
+    rRow('Long. barre HA10 / poteau', f(longBarre10,2)+' m  ('+f(hau,2)+' + 0,40 + 0,40)') +
+    rRow('Long. totale HA10', f(totHA10_m,1)+' m') +
+    rRow('🔩 Barres HA10 × 12 m à acheter', barHA10+' barres', true) +
+    rRow('Étriers HA6 par poteau', nbEtPot+' pcs') +
+    rRow('Total étriers HA6 (poteaux)', totEt+' pcs') +
+    rRow('Long. totale HA6 (poteaux)', f(totHA6_m,1)+' m') +
+    rRow('🔩 Barres HA6 × 12 m à acheter', barHA6+' barres', true);
+}
+
+// ══════════════════════════════════════════════════════
+// 4. CHAÎNAGES
+// ══════════════════════════════════════════════════════
+function calcChainages(){
+  const longNiv = num('c_longueur');
+  const niv     = num('c_niveaux');
+  const longTot = longNiv * niv;
+
+  // jonctions par niveau
+  const jonctNiv  = floor(longNiv / STD.BARRE_LONG);
+  const totJonct  = jonctNiv * niv;
+  const surplusRec = totJonct * STD.ANCRAGE;
+
+  const totHA10_m = STD.BARRES_CHAINGAGE * (longTot + surplusRec);
+  const barHA10   = ceil(totHA10_m / STD.BARRE_LONG);
+
+  // étriers
+  const nbEtNiv  = ceil(longNiv / STD.ETRIER_ESP) + 1;
+  const totEt    = nbEtNiv * niv;
+  const totHA6_m = totEt * STD.ETRIER_LONG_HA6;
+  const barHA6   = ceil(totHA6_m / STD.BARRE_LONG);
+
+  R.ch = { longTot, totHA10_m, barHA10, totEt, totHA6_m, barHA6 };
+
+  $('res_chainages').innerHTML =
+    rRow('Longueur par niveau', f(longNiv,1)+' m') +
+    rRow('Longueur totale (×'+niv+' niveaux)', f(longTot,1)+' m') +
+    rRow('Jonctions (barres à raccorder)', totJonct+' jonctions × 0,40 m') +
+    rRow('Long. totale HA10 (avec recouvrements)', f(totHA10_m,1)+' m') +
+    rRow('🔩 Barres HA10 × 12 m à acheter', barHA10+' barres', true) +
+    rRow('Étriers HA6 par niveau', nbEtNiv+' pcs') +
+    rRow('Total étriers HA6 (chaînages)', totEt+' pcs') +
+    rRow('Long. totale HA6 (chaînages)', f(totHA6_m,1)+' m') +
+    rRow('🔩 Barres HA6 × 12 m à acheter', barHA6+' barres', true);
+}
+
+// ══════════════════════════════════════════════════════
+// 5. LINTEAUX
+// ══════════════════════════════════════════════════════
+function calcLinteaux(){
+  const nbP  = num('l_nb_p');
+  const lp   = num('l_lp');
+  const nbF  = num('l_nb_f');
+  const lf   = num('l_lf');
+
+  const longLP = lp + 2 * STD.ANCRAGE; // avec ancrage des 2 côtés
+  const longLF = lf + 2 * STD.ANCRAGE;
+
+  const totHA8_m = STD.BARRES_LINTEAU * (nbP * longLP + nbF * longLF);
+  const barHA8   = ceil(totHA8_m / STD.BARRE_LONG);
+
+  // étriers
+  const etP  = nbP * (ceil(lp / STD.ETRIER_ESP) + 1);
+  const etF  = nbF * (ceil(lf / STD.ETRIER_ESP) + 1);
+  const totEt    = etP + etF;
+  const totHA6_m = totEt * STD.ETRIER_LONG_HA6;
+  const barHA6   = ceil(totHA6_m / STD.BARRE_LONG);
+
+  R.lin = { totHA8_m, barHA8, totEt, totHA6_m, barHA6 };
+
+  $('res_linteaux').innerHTML =
+    rRow('Long. linteau / porte', f(longLP,2)+' m  ('+f(lp,2)+' + 2×0,40)') +
+    rRow('Long. linteau / fenêtre', f(longLF,2)+' m  ('+f(lf,2)+' + 2×0,40)') +
+    rRow('Long. totale HA8', f(totHA8_m,1)+' m') +
+    rRow('🔩 Barres HA8 × 12 m à acheter', barHA8+' barres', true) +
+    rRow('Étriers HA6 (portes)', etP+' pcs') +
+    rRow('Étriers HA6 (fenêtres)', etF+' pcs') +
+    rRow('Long. totale HA6 (linteaux)', f(totHA6_m,1)+' m') +
+    rRow('🔩 Barres HA6 × 12 m à acheter', barHA6+' barres', true);
+}
+
+// ══════════════════════════════════════════════════════
+// 6. RÉCAPITULATIF
+// ══════════════════════════════════════════════════════
+function buildRecap(){
+  const m = R.mac; const h = R.hd;
+  const p = R.pot; const c = R.ch; const l = R.lin;
+
+  // Cumul HA10
+  const totHA10 = (p.totHA10_m||0) + (c.totHA10_m||0);
+  const barHA10 = ceil(totHA10 / STD.BARRE_LONG);
+
+  // HA8
+  const totHA8  = l.totHA8_m||0;
+  const barHA8  = ceil(totHA8 / STD.BARRE_LONG);
+
+  // HA6 cumulé
+  const ha6Pot  = p.totHA6_m||0;
+  const ha6Ch   = c.totHA6_m||0;
+  const ha6Lin  = l.totHA6_m||0;
+  const totHA6  = ha6Pot + ha6Ch + ha6Lin;
+  const barHA6  = ceil(totHA6 / STD.BARRE_LONG);
+
+  // rendu maçonnerie
+  $('recap_mac').innerHTML = m.nbBri
+    ? rcRow('Type', LABELS[m.type]||'—') +
+      rcRow('Surface nette', f(m.snet,1)+' m²') +
+      rcRow('🧱 Briques / parpaings', f(m.nbBri)+' blocs', true) +
+      rcRow('Sacs ciment 50 kg (mortier)', m.sacsCim+' sacs') +
+      rcRow('Brouettes de sable (mortier)', m.brouSab+' brouettes')
+    : rcRow('—', 'Compléter l\'onglet Maçonnerie');
+
+  // rendu hourdis
+  $('recap_hd').innerHTML = h.nbHour
+    ? rcRow('Surface de dalle', f(h.surface,2)+' m²') +
+      rcRow('🧱 Hourdis 12×20×50', f(h.nbHour)+' unités', true) +
+      rcRow('Poutrelles béton', h.nbPou+' pcs × '+f(h.longPou,2)+' m')
+    : rcRow('—', 'Compléter l\'onglet Hourdis');
+
+  // rendu HA10
+  $('recap_ha10').innerHTML = totHA10>0
+    ? rcRow('HA10 poteaux', f(p.totHA10_m||0,1)+' m') +
+      rcRow('HA10 chaînages', f(c.totHA10_m||0,1)+' m') +
+      rcRow('Longueur totale HA10', f(totHA10,1)+' m') +
+      rcRow('🔩 Barres HA10 × 12 m', barHA10+' barres', true)
+    : rcRow('—', 'Compléter Poteaux et/ou Chaînages');
+
+  // rendu HA8
+  $('recap_ha8').innerHTML = totHA8>0
+    ? rcRow('HA8 linteaux', f(totHA8,1)+' m') +
+      rcRow('🔩 Barres HA8 × 12 m', barHA8+' barres', true)
+    : rcRow('—', 'Compléter l\'onglet Linteaux');
+
+  // rendu HA6
+  $('recap_ha6').innerHTML = totHA6>0
+    ? rcRow('HA6 étriers poteaux', f(ha6Pot,1)+' m') +
+      rcRow('HA6 étriers chaînages', f(ha6Ch,1)+' m') +
+      rcRow('HA6 étriers linteaux', f(ha6Lin,1)+' m') +
+      rcRow('Longueur totale HA6', f(totHA6,1)+' m') +
+      rcRow('🔩 Barres HA6 × 12 m', barHA6+' barres', true)
+    : rcRow('—', 'Compléter au moins un onglet ferraillage');
+
+  // total général
+  $('recap_total').innerHTML =
+    rcRow('HA 10 (poteaux + chaînages)', barHA10+' barres × 12 m', true) +
+    rcRow('HA 8 (linteaux)', barHA8+' barres × 12 m', true) +
+    rcRow('HA 6 (étriers)', barHA6+' barres × 12 m', true);
+}
+
+// Pas d'initialisation automatique — l'utilisateur appuie sur Calculer
+</script>
+</body>
+</html>
